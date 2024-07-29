@@ -6,7 +6,7 @@ This app is made to run locally on your machine in development mode, for securit
 
 This is a [Next.js](https://nextjs.org/) project bootstrapped with [`create-next-app`](https://github.com/vercel/next.js/tree/canary/packages/create-next-app).
 
-The repo is a dashboard for the NEXT AUTO ROLLS project on the Massa Blockchain. It is a simple dashboard that displays the current balance, final and active rolls. Once the user starts Auto roll buying, the dashboard will display check every 60 seconds the current balance, final and active rolls and $MAS amount till next roll buy. The user can also stop the auto roll buying at any time by closing the browser tab, or reload the page.
+The repo is a dashboard for the NEXT AUTO ROLLS project on the Massa Blockchain. It is a simple dashboard that displays the current balance, final and active rolls. Once the user starts Auto roll buying, the dashboard will check every 60 seconds the current balance, final and active rolls and $MAS amount till next roll buy. The user can also stop the auto roll buying at any time by closing the browser tab, or reload the page.
 
 Once the balance is reached the system will automatically buy a new roll and continue the process.
 
@@ -21,6 +21,8 @@ Clone the repo and install the dependencies:
 
 - create a `.env` file in the root of the project or rename the `.env.example` file to `.env`
 - add the necessary environment variables in the `.env` file
+- make sure that your private key is not shared with anyone
+- and that you add the key of your staking wallet
 
 ## Running the app
 
