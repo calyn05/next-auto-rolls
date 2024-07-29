@@ -1,21 +1,25 @@
 .main {
   display: flex;
   flex-direction: column;
-  justify-content: space-between;
+  justify-content: center;
   align-items: center;
   padding: 6rem;
   min-height: 100vh;
+  gap: 2rem;
 }
 
 .description {
   display: inherit;
   justify-content: inherit;
   align-items: inherit;
+  flex-wrap: wrap;
   font-size: 0.85rem;
   max-width: var(--max-width);
+
   width: 100%;
   z-index: 2;
   font-family: var(--font-mono);
+  gap: 1rem;
 }
 
 .description a {
@@ -108,6 +112,29 @@
 .logo {
   position: relative;
 }
+
+.button {
+  display: inline-block;
+  padding: 1rem 2rem;
+  margin-top: 1rem;
+  border-radius: var(--border-radius);
+  background: var(--button-bg);
+  color: var(--button-text);
+  font-weight: 600;
+  text-decoration: none;
+  transition: background 200ms;
+  z-index: 10000;
+  cursor: pointer;
+}
+
+.button:hover {
+  border-color: aqua;
+}
+
+.button:active {
+  transform: scale(0.95);
+}
+
 /* Enable hover only on non-touch devices */
 @media (hover: hover) and (pointer: fine) {
   .card:hover {

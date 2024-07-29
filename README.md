@@ -1,6 +1,25 @@
+NEXT AUTO ROLLS dashboard on Massa Blockchain
+
+# Description
+
+This app is made to run locally on your machine in development mode, for security reasons. It is not recommended to run this app on a public server, as it will need your private key for auto roll buying.
+
 This is a [Next.js](https://nextjs.org/) project bootstrapped with [`create-next-app`](https://github.com/vercel/next.js/tree/canary/packages/create-next-app).
 
+The repo is a dashboard for the NEXT AUTO ROLLS project on the Massa Blockchain. It is a simple dashboard that displays the current balance, final and active rolls. Once the user starts Auto roll buying, the dashboard will display check every 60 seconds the current balance, final and active rolls and $MAS amount till next roll buy. The user can also stop the auto roll buying at any time by closing the browser tab, or reload the page.
+
+Once the balance is reached the system will automatically buy a new roll and continue the process.
+
 ## Getting Started
+
+Clone the repo and install the dependencies:
+
+- open a terminal in your desired directory on your machine
+- run `git clone https://github.com/calyn05/next-auto-rolls.git` or download the zip file from the repo
+- run `cd next-auto-rolls`
+- run `npm install` or `yarn install` or `pnpm install` or `bun install`
+
+## Running the app
 
 First, run the development server:
 
@@ -16,21 +35,48 @@ bun dev
 
 Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+## Run auto roll buying
 
-This project uses [`next/font`](https://nextjs.org/docs/basic-features/font-optimization) to automatically optimize and load Inter, a custom Google Font.
+Click on the "Start Auto Buy" button to start the auto roll buying. The system will automatically buy a new roll once the balance is reached.
 
-## Learn More
+## Stop auto roll buying
 
-To learn more about Next.js, take a look at the following resources:
+Close the browser tab or reload the page to stop the auto roll buying.
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+## Fees
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js/) - your feedback and contributions are welcome!
+We have a small 1% fee on the auto roll buying from the $MAS used.
 
-## Deploy on Vercel
+We also set a max fee to 100 $MAS. This means that the fee will not exceed 100 $MAS.
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+The fee is taken only if the roll is bought successfully.
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/deployment) for more details.
+There are also transaction fees that are paid to the Massa Blockchain network. These fees are not included in the 1% fee. The total network fee is 0.02 $MAS - for two transactions: one for the roll buying and one for fee transaction.
+
+# Fee calculation example
+
+1 roll = 100 $MAS + 0.01 $MAS tx fee + 1 $MAS service fee + 0.01 $MAS tx fee
+
+Total fee = 1.02 $MAS
+
+2 rolls = 200 $MAS + 0.01 $MAS tx fee + 2 $MAS service fee + 0.01 $MAS tx fee
+
+Total fee = 2.02 $MAS
+
+10 rolls = 1000 $MAS + 0.01 $MAS tx fee + 10 $MAS service fee + 0.01 $MAS tx fee
+
+Total fee = 10.02 $MAS
+
+100 rolls = 10000 $MAS + 0.01 $MAS tx fee + 100 $MAS service fee + 0.01 $MAS tx fee
+
+Total fee = 100.02 $MAS
+
+1000 rolls = 100000 $MAS + 0.01 $MAS tx fee + 100 $MAS service fee + 0.01 $MAS tx fee
+
+Total fee = 100.02 $MAS
+
+# Use cases
+
+- If you miss blocks and the rolls are sold out, you can use this app to buy new rolls automatically.
+- If you have deferred credits and you want to buy new rolls automatically.
+- When balance for a new roll is reached and you are not around to buy a new roll.
