@@ -19,6 +19,9 @@ Clone the repo and install the dependencies:
 - run `cd next-auto-rolls`
 - run `npm install` or `yarn install` or `pnpm install` or `bun install`
 
+- create a `.env` file in the root of the project or rename the `.env.example` file to `.env`
+- add the necessary environment variables in the `.env` file
+
 ## Running the app
 
 First, run the development server:
