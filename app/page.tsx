@@ -60,6 +60,7 @@ export default function Home() {
   }, [client]);
 
   useEffect(() => {
+    if (loading) return;
     const interval = setInterval(() => {
       if (client && address) {
         getBalanceMas(address, client).then((balance) => {
@@ -73,15 +74,30 @@ export default function Home() {
       }
     }, 1000 * 60);
     return () => clearInterval(interval);
-  }, [client, address]);
+  }, [client, address, loading]);
 
   useEffect(() => {
+    if (loading) return;
     if (balance) {
       const numberBalance = Number(decimalPoint(balance, masDecimals));
 
       console.log(`$MAS balance: ${numberBalance}`);
 
-      const rolls = Math.floor(numberBalance / 100);
+      let rolls = Math.floor(numberBalance / 100);
+
+      const oneRoll =
+        100 + buyFee + serviceFee + Math.floor(numberBalance * serviceFee);
+
+      if (
+        numberBalance > oneRoll &&
+        numberBalance <
+          rolls * 100 +
+            buyFee +
+            serviceFee +
+            Math.floor(numberBalance * serviceFee)
+      ) {
+        rolls -= 1;
+      }
 
       const newRollsAmount =
         rolls * 100 +
@@ -99,13 +115,12 @@ export default function Home() {
         numberBalance < 100 ? amountToNewRoll + 1 : amountToNewRoll
       );
 
-      if (numberBalance > newRollAmount) {
-        setLoading(true);
-        let fee = Math.floor(numberBalance * serviceFee);
-        if (fee > 100) {
-          fee = maxServiceFee;
-        }
+      let fee = rolls;
+      if (fee > 100) {
+        fee = maxServiceFee;
+      }
 
+      if (numberBalance > newRollAmount) {
         setServiceMasFee(fee);
         const message =
           rolls > 0
@@ -113,21 +128,22 @@ export default function Home() {
             : "Not enough $MAS to buy rolls";
         setMessage(message);
         setBuyRolls(rolls);
-        setLoading(false);
       }
     }
-  }, [balance]);
+  }, [balance, loading]);
 
   useEffect(() => {
     if (buyRolls > 0) {
-      setMessage(`Buy ${buyRolls} rolls`);
       setLoading(true);
+      setMessage(`Buy ${buyRolls} rolls`);
 
-      buyMassaRolls(client!, buyRolls).then((buyRolls) => {
-        console.log(`Buy rolls tx: ${buyRolls[0]}`);
-        setMessage(`Buy rolls txId: ${buyRolls[0]}`);
+      buyMassaRolls(client!, buyRolls).then((tx) => {
+        console.log(`Buy rolls tx: ${tx[0]}`);
+        setMessage(
+          `Buy rolls txId: ${tx[0]}, fee: ${buyFee} $MAS, rolls: ${buyRolls}`
+        );
 
-        operationStatus(client!, buyRolls[0]).then(({ status }) => {
+        operationStatus(client!, tx[0]).then(({ status }) => {
           console.log(`Buy rolls status: ${status}`);
           setMessage(`Buy rolls status: ${status}`);
 
@@ -136,11 +152,12 @@ export default function Home() {
             setSuccess(true);
             setBuyRolls(0);
           } else {
-            setMessage(`Buy rolls failed`);
+            setMessage(`Buy rolls failed! Retrying shortly...`);
             setError("Buy rolls failed");
+
+            setBuyRolls(0);
           }
         });
-        setLoading(false);
       });
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -148,7 +165,6 @@ export default function Home() {
 
   useEffect(() => {
     if (success === true) {
-      setLoading(true);
       sendFeeOperation(client!, serviceMasFee.toString()).then((feeTx) => {
         console.log(`Fee tx: ${feeTx[0]}, fee: ${serviceMasFee}`);
         setMessage(`Fee txId: ${feeTx[0]}, fee: ${serviceMasFee}`);
@@ -158,6 +174,7 @@ export default function Home() {
           setMessage(`Fee status: ${status}`);
 
           if (status === 6) {
+            setLoading(false);
             setMessage(`Fee success! Thank you!`);
             setSuccess(false);
             setServiceMasFee(0);
@@ -165,11 +182,17 @@ export default function Home() {
               setMessage("Auto roll buy ON!");
             }, 5000);
           } else {
-            setMessage(`Fee transaction failed`);
+            setLoading(false);
+            setMessage(`Fee transaction failed! Fee will not be charged!`);
             setError("Fee failed");
+            setSuccess(false);
+            setServiceMasFee(0);
+
+            setTimeout(() => {
+              setMessage("Auto roll buy ON!");
+            }, 5000);
           }
         });
-        setLoading(false);
       });
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps

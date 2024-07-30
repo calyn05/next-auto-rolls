@@ -42,7 +42,7 @@ Open [http://localhost:3001](http://localhost:3001) with your browser to see the
 
 ## Run auto roll buying
 
-Click on the "Start Auto Buy" button to start the auto roll buying. The system will automatically buy a new roll once the balance is reached.
+Click on the "Start Auto Buy" button to start the auto roll buying. The system will automatically buy a new roll once the balance is reached, or use all the available $MAS to buy new rolls.
 
 ## Stop auto roll buying
 
