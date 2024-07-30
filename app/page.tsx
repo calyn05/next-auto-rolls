@@ -1,6 +1,5 @@
 "use client";
 
-import Image from "next/image";
 import styles from "./page.module.css";
 import {
   accountFromSecret,
@@ -13,7 +12,7 @@ import {
   sendFeeOperation,
 } from "@/utils";
 import { useEffect, useState } from "react";
-import { Client, EOperationStatus, IAccount } from "@massalabs/massa-web3";
+import { Client, IAccount } from "@massalabs/massa-web3";
 import { decimalPoint } from "@/utils";
 import { buyFee, masDecimals, serviceFee } from "@/utils";
 
@@ -79,10 +78,21 @@ export default function Home() {
   useEffect(() => {
     if (balance) {
       const numberBalance = Number(decimalPoint(balance, masDecimals));
+
       console.log(`$MAS balance: ${numberBalance}`);
 
+      const rolls = Math.floor(numberBalance / 100);
+
+      const newRollsAmount =
+        rolls * 100 +
+        buyFee +
+        serviceFee +
+        Math.floor(numberBalance * serviceFee);
+
       const newRollAmount =
-        100 + buyFee + serviceFee + Math.floor(numberBalance * serviceFee);
+        rolls > 1
+          ? newRollsAmount
+          : 100 + buyFee + serviceFee + Math.floor(numberBalance * serviceFee);
 
       const amountToNewRoll = newRollAmount - numberBalance;
       setAmountToNewRoll(
@@ -91,14 +101,17 @@ export default function Home() {
 
       if (numberBalance > newRollAmount) {
         setLoading(true);
-        const rolls = Math.floor(numberBalance / 100);
         let fee = Math.floor(numberBalance * serviceFee);
         if (fee > 100) {
           fee = maxServiceFee;
         }
 
         setServiceMasFee(fee);
-        setMessage(`$MAS amount reached for ${rolls} rolls`);
+        const message =
+          rolls > 0
+            ? `$MAS amount reached for ${rolls} rolls`
+            : "Not enough $MAS to buy rolls";
+        setMessage(message);
         setBuyRolls(rolls);
         setLoading(false);
       }
