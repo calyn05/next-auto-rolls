@@ -143,7 +143,7 @@ export default function Home() {
           `Buy rolls txId: ${tx[0]}, fee: ${buyFee} $MAS, rolls: ${buyRolls}`
         );
 
-        operationStatus(client!, tx[0]).then(({ status }) => {
+        operationStatus(client!, tx[0], false).then(({ status }) => {
           console.log(`Buy rolls status: ${status}`);
           setMessage(`Buy rolls status: ${status}`);
 
@@ -169,7 +169,7 @@ export default function Home() {
         console.log(`Fee tx: ${feeTx[0]}, fee: ${serviceMasFee}`);
         setMessage(`Fee txId: ${feeTx[0]}, fee: ${serviceMasFee}`);
 
-        operationStatus(client!, feeTx[0]).then(({ status }) => {
+        operationStatus(client!, feeTx[0], false).then(({ status }) => {
           console.log(`Fee status: ${status}`);
           setMessage(`Fee status: ${status}`);
 
