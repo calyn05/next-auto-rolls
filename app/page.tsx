@@ -17,6 +17,8 @@ import { Client, IAccount } from "@massalabs/massa-web3";
 import { decimalPoint } from "@/utils";
 import { buyFee, masDecimals, serviceFee } from "@/utils";
 
+const version = "1.0.0";
+
 export default function Home() {
   const [client, setClient] = useState<Client | null>(null);
   const [balance, setBalance] = useState<bigint | null>(null);
@@ -218,6 +220,10 @@ export default function Home() {
 
   return (
     <main className={styles.main}>
+      <h1 className={styles.title}>Massa Auto Roll</h1>
+      <div className={styles.description}>
+        <p>Automated Massa rolls & dashboard for stakers. Version: {version}</p>
+      </div>
       <div className={styles.description}>
         <p>
           $MAS balance:&nbsp;
