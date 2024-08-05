@@ -7,6 +7,7 @@ import {
   createClient,
   getAddressInfo,
   getBalanceMas,
+  getCandidateBalance,
   maxServiceFee,
   operationStatus,
   sendFeeOperation,
@@ -148,6 +149,14 @@ export default function Home() {
           setMessage(`Buy rolls status: ${status}`);
 
           if (status === 6) {
+            getCandidateBalance(address!, client!).then((balance) => {
+              setBalance(balance);
+              getAddressInfo(client!, address!).then((account) => {
+                const { activeRolls, finalRolls } = account;
+                setActiveRolls(activeRolls);
+                setFinalRolls(finalRolls);
+              });
+            });
             setMessage(`Buy rolls success`);
             setSuccess(true);
             setBuyRolls(0);
@@ -174,6 +183,15 @@ export default function Home() {
           setMessage(`Fee status: ${status}`);
 
           if (status === 6) {
+            getCandidateBalance(address!, client!).then((balance) => {
+              setBalance(balance);
+              getAddressInfo(client!, address!).then((account) => {
+                const { activeRolls, finalRolls } = account;
+                setActiveRolls(activeRolls);
+                setFinalRolls(finalRolls);
+              });
+            });
+
             setLoading(false);
             setMessage(`Fee success! Thank you!`);
             setSuccess(false);

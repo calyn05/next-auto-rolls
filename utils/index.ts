@@ -1,5 +1,5 @@
 export { accountFromSecret } from "./getAccount";
-export { getBalanceMas } from "./getBalance";
+export { getBalanceMas, getCandidateBalance } from "./getBalance";
 export { createClient } from "./createClient";
 export { decimalPoint } from "./decimalPoint";
 export { buyMassaRolls } from "./buyRolls";
