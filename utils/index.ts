@@ -5,12 +5,14 @@ export { decimalPoint } from "./decimalPoint";
 export { buyMassaRolls } from "./buyRolls";
 export { getAddressInfo } from "./getRolls";
 export { operationStatus } from "./opStatus";
-export { sendFeeOperation } from "./sendOperation";
+export { sendFeeMnsOperation } from "./sendOperation";
 export {
   minimalFee,
-  feeAddress,
+  title,
   buyFee,
   serviceFee,
   masDecimals,
   maxServiceFee,
+  mns,
+  clientConfig,
 } from "./constants";

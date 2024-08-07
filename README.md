@@ -1,4 +1,6 @@
-NEXT AUTO ROLLS dashboard on Massa Blockchain
+NEXT AUTO ROLLS dashboard on Massa Blockchain - Auto roll buying
+
+Version 1.0.1
 
 # Description
 
@@ -39,6 +41,13 @@ bun dev
 ```
 
 Open [http://localhost:3001](http://localhost:3001) with your browser to see the result.
+
+## Update the app
+
+- open a terminal in the root of the project
+- run `git pull` to update the app
+- run `npm install` or `yarn install` or `pnpm install` or `bun install` to install the new dependencies
+- run `npm run dev` or `yarn dev` or `pnpm dev` or `bun dev` to start the app
 
 ## Run auto roll buying
 

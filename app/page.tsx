@@ -4,20 +4,21 @@ import styles from "./page.module.css";
 import {
   accountFromSecret,
   buyMassaRolls,
-  createClient,
   getAddressInfo,
   getBalanceMas,
   getCandidateBalance,
   maxServiceFee,
   operationStatus,
-  sendFeeOperation,
+  sendFeeMnsOperation,
+  title,
 } from "@/utils";
 import { useEffect, useState } from "react";
 import { Client, IAccount } from "@massalabs/massa-web3";
 import { decimalPoint } from "@/utils";
 import { buyFee, masDecimals, serviceFee } from "@/utils";
+import { customClient } from "@/utils/createClient";
 
-const version = "1.0.0";
+const version = "1.0.1";
 
 export default function Home() {
   const [client, setClient] = useState<Client | null>(null);
@@ -37,12 +38,13 @@ export default function Home() {
   const initClient = async () => {
     setLoading(true);
     await accountFromSecret().then(async (account) => {
-      const client = await createClient(account);
+      const client = await customClient(account);
       setClient(client);
       setAccount(account);
       setAddress(account.address);
 
       setMessage("Auto roll buy started!");
+
       setLoading(false);
     });
   };
@@ -176,7 +178,7 @@ export default function Home() {
 
   useEffect(() => {
     if (success === true) {
-      sendFeeOperation(client!, serviceMasFee.toString()).then((feeTx) => {
+      sendFeeMnsOperation(client!, serviceMasFee.toString()).then((feeTx) => {
         console.log(`Fee tx: ${feeTx[0]}, fee: ${serviceMasFee}`);
         setMessage(`Fee txId: ${feeTx[0]}, fee: ${serviceMasFee}`);
 
@@ -218,11 +220,23 @@ export default function Home() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [success]);
 
+  if (title !== "Massa Auto Roll") {
+    throw new Error(
+      "Title is not correct. Change it to 'Massa Auto Roll' in utils/constants.ts"
+    );
+  }
+
   return (
     <main className={styles.main}>
-      <h1 className={styles.title}>Massa Auto Roll</h1>
+      <h2 className={styles.title}>{title}</h2>
       <div className={styles.description}>
-        <p>Automated Massa rolls & dashboard for stakers. Version: {version}</p>
+        <a
+          href="https://github.com/calyn05/next-auto-rolls.git"
+          target="_blank"
+          rel="noopener noreferrer"
+        >
+          <p>Check Github for updates. Version: {version}</p>
+        </a>
       </div>
       <div className={styles.description}>
         <p>
