@@ -262,19 +262,6 @@ export default function Home() {
         </div>
       </div>
 
-      <div className={styles.description}>
-        <p>
-          1 roll = 100 $MAS + {buyFee} $MAS tx fee + {serviceFee * 100}% service
-          fee + {serviceFee} $MAS tx fee
-        </p>
-      </div>
-      <div className={styles.description}>
-        <p>Max service fee: {maxServiceFee + serviceFee} $MAS</p>
-      </div>
-      <div className={styles.description}>
-        <p>Fee example: 1 auto roll = 1.01 $MAS service + tx fee</p>
-      </div>
-
       <div className={styles.center}>
         {!client && (
           <button
@@ -313,6 +300,19 @@ export default function Home() {
             </div>
           )}
         </div>
+      </div>
+
+      <div className={styles.description}>
+        <p>
+          1 roll = 100 $MAS + {buyFee} $MAS tx fee + {serviceFee * 100}% service
+          fee + {serviceFee} $MAS tx fee
+        </p>
+      </div>
+      <div className={styles.description}>
+        <p>Max service fee: {maxServiceFee + serviceFee} $MAS</p>
+      </div>
+      <div className={styles.description}>
+        <p>Fee example: 1 auto roll = 1.01 $MAS service + tx fee</p>
       </div>
 
       <div className={styles.grid}>
