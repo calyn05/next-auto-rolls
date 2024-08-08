@@ -1,6 +1,9 @@
 "use client";
 
 import styles from "./page.module.css";
+
+import { useEffect, useState } from "react";
+import { Client, IAccount } from "@massalabs/massa-web3";
 import {
   accountFromSecret,
   buyMassaRolls,
@@ -8,17 +11,18 @@ import {
   getBalanceMas,
   getCandidateBalance,
   maxServiceFee,
+  minServiceFee,
   operationStatus,
+  progressiveFee,
   sendFeeMnsOperation,
   title,
+  buyFee,
+  masDecimals,
+  customClient,
+  decimalPoint,
 } from "@/utils";
-import { useEffect, useState } from "react";
-import { Client, IAccount } from "@massalabs/massa-web3";
-import { decimalPoint } from "@/utils";
-import { buyFee, masDecimals, serviceFee } from "@/utils";
-import { customClient } from "@/utils/createClient";
 
-const version = "1.0.1";
+const version = "1.1.0";
 
 export default function Home() {
   const [client, setClient] = useState<Client | null>(null);
@@ -34,6 +38,15 @@ export default function Home() {
   const [serviceMasFee, setServiceMasFee] = useState<number>(0);
   const [loading, setLoading] = useState<boolean>(false);
   const [amountToNewRoll, setAmountToNewRoll] = useState<number>(0);
+  const [calculatedFee, setCalculatedFee] = useState<number>(0);
+  const [rollsNumber, setRollsNumber] = useState<number>(0);
+
+  const calculateServiceFee = async (rolls: number) => {
+    const fee = await progressiveFee(client!, rolls);
+    let rollsFee = rolls > 1 ? minServiceFee + fee : minServiceFee;
+    rollsFee = rollsFee > maxServiceFee ? maxServiceFee : rollsFee;
+    setCalculatedFee(rollsFee);
+  };
 
   const initClient = async () => {
     setLoading(true);
@@ -44,6 +57,8 @@ export default function Home() {
       setAddress(account.address);
 
       setMessage("Auto roll buy started!");
+
+      setRollsNumber(1);
 
       setLoading(false);
     });
@@ -59,6 +74,12 @@ export default function Home() {
         const { activeRolls, finalRolls } = account;
         setActiveRolls(activeRolls);
         setFinalRolls(finalRolls);
+      });
+
+      progressiveFee(client, rollsNumber).then((fee) => {
+        let rollsFee = rollsNumber > 1 ? minServiceFee + fee : minServiceFee;
+        rollsFee = rollsFee > maxServiceFee ? maxServiceFee : rollsFee;
+        setCalculatedFee(rollsFee);
       });
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -86,56 +107,47 @@ export default function Home() {
     if (balance) {
       const numberBalance = Number(decimalPoint(balance, masDecimals));
 
-      console.log(`$MAS balance: ${numberBalance}`);
+      let serviceFee;
 
       let rolls = Math.floor(numberBalance / 100);
 
-      const oneRoll =
-        100 + buyFee + serviceFee + Math.floor(numberBalance * serviceFee);
+      progressiveFee(client!, rolls).then((fee) => {
+        serviceFee = rolls > 1 ? minServiceFee + fee : minServiceFee;
+        const oneRoll = 100 + buyFee * 2 + serviceFee;
 
-      if (
-        numberBalance > oneRoll &&
-        numberBalance <
-          rolls * 100 +
-            buyFee +
-            serviceFee +
-            Math.floor(numberBalance * serviceFee)
-      ) {
-        rolls -= 1;
-      }
+        if (
+          numberBalance > oneRoll &&
+          numberBalance < rolls * 100 + buyFee * 2 + serviceFee
+        ) {
+          rolls -= 1;
+        }
 
-      const newRollsAmount =
-        rolls * 100 +
-        buyFee +
-        serviceFee +
-        Math.floor(numberBalance * serviceFee);
+        const newRollsAmount = rolls * 100 + buyFee * 2 + serviceFee;
 
-      const newRollAmount =
-        rolls > 1
-          ? newRollsAmount
-          : 100 + buyFee + serviceFee + Math.floor(numberBalance * serviceFee);
+        const newRollAmount =
+          rolls > 1 ? newRollsAmount : 100 + buyFee * 2 + minServiceFee;
 
-      const amountToNewRoll = newRollAmount - numberBalance;
-      setAmountToNewRoll(
-        numberBalance < 100 ? amountToNewRoll + 1 : amountToNewRoll
-      );
+        const amountToNewRoll = newRollAmount - numberBalance;
+        setAmountToNewRoll(
+          numberBalance < 100 ? amountToNewRoll : amountToNewRoll
+        );
 
-      let fee = rolls;
-      if (fee > 100) {
-        fee = maxServiceFee;
-      }
+        if (serviceFee > 1000) {
+          serviceFee = maxServiceFee;
+        }
 
-      if (numberBalance > newRollAmount) {
-        setServiceMasFee(fee);
-        const message =
-          rolls > 0
-            ? `$MAS amount reached for ${rolls} rolls`
-            : "Not enough $MAS to buy rolls";
-        setMessage(message);
-        setBuyRolls(rolls);
-      }
+        if (numberBalance > newRollAmount) {
+          setServiceMasFee(serviceFee);
+          const message =
+            rolls > 0
+              ? `$MAS amount reached for ${rolls} rolls`
+              : "Not enough $MAS to buy rolls";
+          setMessage(message);
+          setBuyRolls(rolls);
+        }
+      });
     }
-  }, [balance, loading]);
+  }, [balance, loading, client]);
 
   useEffect(() => {
     if (buyRolls > 0) {
@@ -302,18 +314,55 @@ export default function Home() {
         </div>
       </div>
 
-      <div className={styles.description}>
-        <p>
-          1 roll = 100 $MAS + {buyFee} $MAS tx fee + {serviceFee * 100}% service
-          fee + {serviceFee} $MAS tx fee
-        </p>
+      <h3>Progressive fee system</h3>
+      <div className={styles.inputContainer}>
+        <label htmlFor="rolls">
+          {client
+            ? `Enter rolls number to calculate`
+            : `Start auto buy to calculate`}
+        </label>
+        <input
+          type="number"
+          name="rolls"
+          min={1}
+          onChange={(e) => {
+            if (e.target.value === "") {
+              setRollsNumber(1);
+              calculateServiceFee(1);
+              return;
+            }
+            setRollsNumber(Number(e.target.value));
+            calculateServiceFee(Number(e.target.value));
+          }}
+          placeholder="Rolls number"
+          disabled={loading || !client}
+        />
       </div>
-      <div className={styles.description}>
-        <p>Max service fee: {maxServiceFee + serviceFee} $MAS</p>
-      </div>
-      <div className={styles.description}>
-        <p>Fee example: 1 auto roll = 1.01 $MAS service + tx fee</p>
-      </div>
+
+      {client && (
+        <>
+          <div className={styles.description}>
+            <p>
+              Service fee: {calculatedFee} $MAS for {rollsNumber} auto{" "}
+              {rollsNumber > 1 ? "rolls" : "roll"}
+            </p>
+            <p>
+              Total transaction cost:{` `}
+              {rollsNumber * 100 + buyFee * 2 + calculatedFee} $MAS
+            </p>
+          </div>
+          <div className={styles.description}>
+            <p>
+              Example:{` `}
+              {rollsNumber > 1
+                ? `${rollsNumber} rolls`
+                : `${rollsNumber} roll`}{" "}
+              = {rollsNumber * 100} $MAS + {buyFee} $MAS tx fee +{" "}
+              {calculatedFee} $MAS service fee + {buyFee} $MAS tx fee
+            </p>
+          </div>
+        </>
+      )}
 
       <div className={styles.grid}>
         <a

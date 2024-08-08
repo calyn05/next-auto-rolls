@@ -15,8 +15,9 @@ export const minimalFee = async (client: IClient) => {
 
 // For buying rolls
 export const buyFee = 0.01; //  current minimal fee for buying rolls
-export const serviceFee = 0.01; // 1% service fee from the MAS amount
-export const maxServiceFee = 100; // 100 MAS max service fee
+export const minServiceFee = 1; // 1 $MAS minimum service fee
+// Progressive fee - READ MORE: utils/PROGRESSIVEFEE.md
+export const maxServiceFee = 1000; // 1000 MAS max service fee for top staker address
 export const mns = title.toLowerCase().slice(6, 15).replace(" ", "");
 export const masDecimals = 9; // 9 decimal points for MAS token
 
