@@ -22,7 +22,7 @@ import {
   decimalPoint,
 } from "@/utils";
 
-const version = "1.1.0";
+const version = "1.2.0";
 
 export default function Home() {
   const [client, setClient] = useState<Client | null>(null);
@@ -39,7 +39,8 @@ export default function Home() {
   const [loading, setLoading] = useState<boolean>(false);
   const [amountToNewRoll, setAmountToNewRoll] = useState<number>(0);
   const [calculatedFee, setCalculatedFee] = useState<number>(0);
-  const [rollsNumber, setRollsNumber] = useState<number>(0);
+  const [rollsNumber, setRollsNumber] = useState<number>(1);
+  const [minRollsToBuy, setMinRollsToBuy] = useState<number>(1);
 
   const calculateServiceFee = async (rolls: number) => {
     const fee = await progressiveFee(client!, rolls);
@@ -56,7 +57,9 @@ export default function Home() {
       setAccount(account);
       setAddress(account.address);
 
-      setMessage("Auto roll buy started!");
+      setMessage(
+        `Auto roll buy started! The app will buy rolls once the $MAS balance is enough!`
+      );
 
       setRollsNumber(1);
 
@@ -111,6 +114,29 @@ export default function Home() {
 
       let rolls = Math.floor(numberBalance / 100);
 
+      if (rolls < minRollsToBuy) {
+        progressiveFee(client!, minRollsToBuy).then((fee) => {
+          setTimeout(() => {
+            setMessage(
+              `Auto roll buy ON! The app will buy ${minRollsToBuy} ${
+                minRollsToBuy > 1 ? "rolls" : "roll"
+              } / run!`
+            );
+          }, 5000);
+          setAmountToNewRoll(
+            minRollsToBuy > 1
+              ? minRollsToBuy * 100 +
+                  buyFee * 2 +
+                  minServiceFee +
+                  fee -
+                  numberBalance
+              : 100 + buyFee * 2 + minServiceFee - numberBalance
+          );
+        });
+
+        return;
+      }
+
       progressiveFee(client!, rolls).then((fee) => {
         serviceFee = rolls > 1 ? minServiceFee + fee : minServiceFee;
         const oneRoll = 100 + buyFee * 2 + serviceFee;
@@ -147,7 +173,7 @@ export default function Home() {
         }
       });
     }
-  }, [balance, loading, client]);
+  }, [balance, loading, client, minRollsToBuy]);
 
   useEffect(() => {
     if (buyRolls > 0) {
@@ -247,7 +273,14 @@ export default function Home() {
           target="_blank"
           rel="noopener noreferrer"
         >
-          <p>Check Github for updates. Version: {version}</p>
+          <p
+            style={{
+              fontStyle: "italic",
+              fontWeight: "bold",
+            }}
+          >
+            Check Github for updates. Your Version: {version} <span>-&gt;</span>
+          </p>
         </a>
       </div>
       <div className={styles.description}>
@@ -265,7 +298,7 @@ export default function Home() {
         </p>
         <div>
           <p>
-            MAS to new roll:&nbsp;
+            $MAS to new auto buy:&nbsp;
             <code className={styles.code}>
               {" "}
               {amountToNewRoll.toFixed(masDecimals)}
@@ -273,6 +306,48 @@ export default function Home() {
           </p>
         </div>
       </div>
+
+      {/* Min rolls to buy in a run */}
+      {client && (
+        <div
+          style={{
+            display: "flex",
+            flexDirection: "column",
+            justifyContent: "center",
+            alignItems: "center",
+            textAlign: "center",
+            border: "1px solid silver",
+            padding: "1rem 4rem",
+            borderRadius: "10px",
+            width: "100%",
+          }}
+        >
+          <h4>Single run Rolls</h4>
+          <div className={styles.inputContainer}>
+            <label htmlFor="rolls">Min Rolls num to buy / run</label>
+            <input
+              type="number"
+              defaultValue={minRollsToBuy}
+              name="rolls"
+              min={1}
+              onChange={(e) => {
+                if (e.target.value === "") {
+                  setRollsNumber(1);
+                  calculateServiceFee(1);
+                  setMinRollsToBuy(1);
+                  return;
+                }
+                setRollsNumber(Number(e.target.value));
+                calculateServiceFee(Number(e.target.value));
+                setMinRollsToBuy(Number(e.target.value));
+              }}
+              placeholder="Rolls number"
+              disabled={loading || !client}
+              style={{ textAlign: "center" }}
+            />
+          </div>
+        </div>
+      )}
 
       <div className={styles.center}>
         {!client && (
@@ -325,6 +400,7 @@ export default function Home() {
           type="number"
           name="rolls"
           min={1}
+          defaultValue={rollsNumber}
           onChange={(e) => {
             if (e.target.value === "") {
               setRollsNumber(1);
@@ -343,12 +419,15 @@ export default function Home() {
         <>
           <div className={styles.description}>
             <p>
-              Service fee: {calculatedFee} $MAS for {rollsNumber} auto{" "}
-              {rollsNumber > 1 ? "rolls" : "roll"}
+              Service fee: {calculatedFee.toFixed(masDecimals)} $MAS for{" "}
+              {rollsNumber} auto {rollsNumber > 1 ? "rolls" : "roll"}
             </p>
             <p>
               Total transaction cost:{` `}
-              {rollsNumber * 100 + buyFee * 2 + calculatedFee} $MAS
+              {(rollsNumber * 100 + buyFee * 2 + calculatedFee).toFixed(
+                masDecimals
+              )}{" "}
+              $MAS
             </p>
           </div>
           <div className={styles.description}>
@@ -358,7 +437,8 @@ export default function Home() {
                 ? `${rollsNumber} rolls`
                 : `${rollsNumber} roll`}{" "}
               = {rollsNumber * 100} $MAS + {buyFee} $MAS tx fee +{" "}
-              {calculatedFee} $MAS service fee + {buyFee} $MAS tx fee
+              {calculatedFee.toFixed(masDecimals)} $MAS service fee + {buyFee}{" "}
+              $MAS tx fee
             </p>
           </div>
         </>

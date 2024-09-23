@@ -1,6 +1,6 @@
 NEXT AUTO ROLLS dashboard on Massa Blockchain - Auto roll buying
 
-Version 1.1.0
+Version 1.2.0
 
 # Description
 
@@ -52,6 +52,12 @@ Open [http://localhost:3001](http://localhost:3001) with your browser to see the
 ## Run auto roll buying
 
 Click on the "Start Auto Buy" button to start the auto roll buying. The system will automatically buy a new roll once the balance is reached, or use all the available $MAS to buy new rolls.
+
+## Min rolls to buy in a single transaction
+
+The default number of rolls that can be bought in a single transaction is 1 roll.
+Set the number of rolls you want to buy in a single transaction in the input field.
+Once the balance is reached, the system will buy the number of rolls set in the input field.
 
 ## Stop auto roll buying
 
