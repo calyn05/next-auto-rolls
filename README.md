@@ -1,6 +1,8 @@
 NEXT AUTO ROLLS dashboard on Massa Blockchain - Auto roll buying
 
-Version 1.2.0
+Version 1.2.1
+
+Update necessary from version 1.2.0 - Min rolls to buy in a single transaction fixed
 
 # Description
 

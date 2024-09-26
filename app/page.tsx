@@ -22,7 +22,7 @@ import {
   decimalPoint,
 } from "@/utils";
 
-const version = "1.2.0";
+const version = "1.2.1";
 
 export default function Home() {
   const [client, setClient] = useState<Client | null>(null);
@@ -114,24 +114,24 @@ export default function Home() {
 
       let rolls = Math.floor(numberBalance / 100);
 
-      if (rolls < minRollsToBuy) {
+      if (amountToNewRoll >= 0) {
         progressiveFee(client!, minRollsToBuy).then((fee) => {
           setTimeout(() => {
             setMessage(
-              `Auto roll buy ON! The app will buy ${minRollsToBuy} ${
+              `Auto roll buy ON! Set at min ${minRollsToBuy} ${
                 minRollsToBuy > 1 ? "rolls" : "roll"
               } / run!`
             );
-          }, 5000);
-          setAmountToNewRoll(
+          }, 3000);
+          const amountToNewRolls =
             minRollsToBuy > 1
               ? minRollsToBuy * 100 +
-                  buyFee * 2 +
-                  minServiceFee +
-                  fee -
-                  numberBalance
-              : 100 + buyFee * 2 + minServiceFee - numberBalance
-          );
+                buyFee * 2 +
+                minServiceFee +
+                fee -
+                numberBalance
+              : 100 + buyFee * 2 + minServiceFee - numberBalance;
+          setAmountToNewRoll(amountToNewRolls);
         });
 
         return;
@@ -173,7 +173,7 @@ export default function Home() {
         }
       });
     }
-  }, [balance, loading, client, minRollsToBuy]);
+  }, [balance, loading, client, minRollsToBuy, amountToNewRoll]);
 
   useEffect(() => {
     if (buyRolls > 0) {
@@ -316,7 +316,7 @@ export default function Home() {
             justifyContent: "center",
             alignItems: "center",
             textAlign: "center",
-            border: "1px solid silver",
+            backgroundColor: "rgba(12, 12, 12, .5)",
             padding: "1rem 4rem",
             borderRadius: "10px",
             width: "100%",
@@ -397,6 +397,9 @@ export default function Home() {
             : `Start auto buy to calculate`}
         </label>
         <input
+          style={{
+            textAlign: "center",
+          }}
           type="number"
           name="rolls"
           min={1}
